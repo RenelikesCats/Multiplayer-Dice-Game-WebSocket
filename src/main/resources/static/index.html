@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice game websocket</title>
+    <script src="js/script.js" defer></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div id="usernameAreaDiv" class="username-input">
+    <label for="username">Enter Username:</label>
+    <input type="text" id="username" placeholder="Your Username">
+    <button id="setUsername">Join</button>
+</div>
+
+<div id="message-area">
+    <div>Your score: <span id="scoreYou"></span></div>
+    <div>Other player score: <span id="scoreOther"></span></div>
+</div>
+
+<br>
+<div class="game-area">
+
+    <div class="diceDiv">
+        <h2>Dice 1 </h2>
+        <div id="dice1" class="dice">?</div>
+    </div>
+
+    <div class="diceDiv">
+        <h2>Dice 2</h2>
+        <div id="dice2" class="dice">?</div>
+    </div>
+
+</div>
+
+<button id="roll-dice">Roll Dice</button>
+
+</body>
+</html>
