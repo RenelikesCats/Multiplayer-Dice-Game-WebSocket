@@ -9,6 +9,10 @@ const dice1Div = document.getElementById('dice1');
 const dice2Div = document.getElementById('dice2');
 const rollDiceButton = document.getElementById('roll-dice');
 
+const systemMsgDiv = document.getElementById("system-msg");
+const winner = document.getElementById('winner');
+const message = document.getElementById('message');
+const timeOutDelay = 4000;
 let websocket;
 
 
@@ -31,16 +35,52 @@ function connectWebsocket() {
         const data = JSON.parse(event.data);
         switch (data.type) {
             case 'JOIN':
-                console.log(data.username + ' has joined!');
+                message.textContent = `${data.username} has joined!`;
+                setTimeout(() => message.textContent = "", timeOutDelay)
                 break;
             case 'LEAVE':
-                console.log(data.username + ' has left!');
+                message.textContent = `${data.username} has left!`;
+                setTimeout(() => message.textContent = "", timeOutDelay)
+                break;
+            case 'WAIT':
+                rollDiceButton.disabled = true;
+                message.textContent = "Waiting for other player to play...";
+                break;
+            case 'ROLL':
+                dice1Div.textContent = data.roll1;
+                dice2Div.textContent = data.roll2;
+                scoreYouSpan.textContent = data.roll1 + data.roll2
+                break;
+            case 'RESULT':
+                rollDiceButton.disabled = true;
+                winner.textContent = data.username;
+                message.textContent = data.resultMessage;
+                setTimeout(() => {
+                    resetResults()
+                    rollDiceButton.disabled = false;
+                }, timeOutDelay)
+                break;
+            case 'ROLLOTHERPLAYER':
+                scoreOtherSpan.textContent = data.roll1 + data.roll2;
+                break;
+            case 'NOTENOUGHPLAYERS':
+                message.textContent = "Not enough players...";
+                break;
+            case 'LOBBYFULL':
+                alert("Lobby is full!")
                 break;
         }
     }
 
+    websocket.addEventListener('close', () => {
+        if (websocket.readyState === WebSocket.CLOSING || websocket.readyState === WebSocket.CLOSED) {
+            showLoggedOffElements();
+        }
+    });
+
     rollDiceButton.addEventListener('click', () => {
         websocket.send(JSON.stringify({type: "ROLL"}));
+
     })
 }
 
@@ -48,5 +88,24 @@ function showLoggedInElements() {
     gameArea.style.display = 'flex';
     scoreArea.hidden = false;
     rollDiceButton.hidden = false;
-    //usernameAreaDiv.hidden = true;
+    systemMsgDiv.hidden = false;
+    usernameAreaDiv.hidden = true;
+
+}
+
+function showLoggedOffElements() {
+    gameArea.style.display = 'none';
+    scoreArea.hidden = true;
+    rollDiceButton.hidden = true;
+    systemMsgDiv.hidden = true;
+    usernameAreaDiv.hidden = false;
+}
+
+function resetResults() {
+    dice1Div.textContent = "";
+    dice2Div.textContent = "";
+    winner.textContent = "";
+    message.textContent = "";
+    scoreOtherSpan.textContent = "";
+    scoreYouSpan.textContent = "";
 }

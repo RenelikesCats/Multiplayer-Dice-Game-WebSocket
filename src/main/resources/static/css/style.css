@@ -63,7 +63,7 @@ body {
 
 .diceDiv {
     text-align: center;
-    width:220px;
+    width: 220px;
 }
 
 .diceDiv h2 {
@@ -100,6 +100,10 @@ body {
     background-color: #1e7e34;
 }
 
+#roll-dice:disabled {
+    background-color: rgba(82, 82, 82, 0.56);
+}
+
 #score-area {
     width: 600px;
     height: fit-content;
@@ -119,4 +123,23 @@ body {
 #scoreOther {
     font-weight: bolder;
     color: #007bff;
+}
+
+#system-msg {
+    width: 600px;
+    height: fit-content;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #333;
+
+}
+
+#system-msg span {
+    color: red;
+}
+
+#system-msg p {
+    color: #0aa611;
 }

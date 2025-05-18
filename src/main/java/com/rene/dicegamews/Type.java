@@ -1,5 +1,9 @@
 package com.rene.dicegamews;
 
 public enum Type {
-    JOIN, LEAVE, ROLL
+    JOIN, LEAVE, ROLL,
+    WAIT, RESULT,
+    ROLLOTHERPLAYER,
+    NOTENOUGHPLAYERS,
+    LOBBYFULL
 }
