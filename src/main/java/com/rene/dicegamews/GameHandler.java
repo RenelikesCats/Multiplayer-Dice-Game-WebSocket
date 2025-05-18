@@ -32,7 +32,6 @@ public class GameHandler extends TextWebSocketHandler {
             return;
         }
         String username = getUsername(session);
-        System.out.println(username);
         sessions.put(username, session);
         sendMessageToAll(new WebSocketMessage(JOIN, username));
     }

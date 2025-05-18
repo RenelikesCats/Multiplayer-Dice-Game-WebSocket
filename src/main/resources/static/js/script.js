@@ -15,14 +15,21 @@ const message = document.getElementById('message');
 const timeOutDelay = 4000;
 let websocket;
 
+document.addEventListener("keydown", (event) => {
+    if (event.key === 'Enter') {
+        setUsernameButton.click();
+    }
+})
 
 setUsernameButton.addEventListener('click', () => {
-    if (usernameInput.value === '') {
+    const usernameTrimmed = usernameInput.value.trim();
+    const username = usernameTrimmed.charAt(0).toUpperCase() + usernameTrimmed.slice(1);
+    if (!username) {
         alert('Please enter a valid username');
-        return
+        return;
     }
     showLoggedInElements();
-    websocket = new WebSocket(`ws://localhost:8080/ws-dice?username=${usernameInput.value}`);
+    websocket = new WebSocket(`ws://localhost:8080/ws-dice?username=${username}`);
     connectWebsocket();
 })
 
@@ -69,12 +76,15 @@ function connectWebsocket() {
             case 'LOBBYFULL':
                 alert("Lobby is full!")
                 break;
+            default:
+                console.log("Unknown message type:", data.type);
         }
     }
 
     websocket.addEventListener('close', () => {
         if (websocket.readyState === WebSocket.CLOSING || websocket.readyState === WebSocket.CLOSED) {
             showLoggedOffElements();
+            resetResults()
         }
     });
 
