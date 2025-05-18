@@ -5,8 +5,8 @@ const scoreArea = document.getElementById('score-area');
 const gameArea = document.getElementById('game-area');
 const scoreYouSpan = document.getElementById('scoreYou');
 const scoreOtherSpan = document.getElementById('scoreOther');
-const dice1Div = document.getElementById('dice1');
-const dice2Div = document.getElementById('dice2');
+const dice1Img = document.getElementById('dice1Image');
+const dice2Img = document.getElementById('dice2Image');
 const rollDiceButton = document.getElementById('roll-dice');
 
 const systemMsgDiv = document.getElementById("system-msg");
@@ -54,8 +54,8 @@ function connectWebsocket() {
                 message.textContent = "Waiting for other player to play...";
                 break;
             case 'ROLL':
-                dice1Div.textContent = data.roll1;
-                dice2Div.textContent = data.roll2;
+                dice1Img.src =`images/${data.roll1}.png`;
+                dice2Img.src =`images/${data.roll2}.png`;
                 scoreYouSpan.textContent = data.roll1 + data.roll2
                 break;
             case 'RESULT':
@@ -112,8 +112,8 @@ function showLoggedOffElements() {
 }
 
 function resetResults() {
-    dice1Div.textContent = "";
-    dice2Div.textContent = "";
+    dice1Img.src =`images/0.png`;
+    dice2Img.src =`images/0.png`;
     winner.textContent = "";
     message.textContent = "";
     scoreOtherSpan.textContent = "";
