@@ -8,18 +8,20 @@ const scoreOtherSpan = document.getElementById('scoreOther');
 const dice1Img = document.getElementById('dice1Image');
 const dice2Img = document.getElementById('dice2Image');
 const rollDiceButton = document.getElementById('roll-dice');
-
 const systemMsgDiv = document.getElementById("system-msg");
 const winner = document.getElementById('winner');
 const message = document.getElementById('message');
+
+const URL = "ws://localhost:8080/ws-dice?username=";
 const timeOutDelay = 4000;
+let timeout;
 let websocket;
 
 document.addEventListener("keydown", (event) => {
     if (event.key === 'Enter') {
         setUsernameButton.click();
     }
-})
+});
 
 setUsernameButton.addEventListener('click', () => {
     const usernameTrimmed = usernameInput.value.trim();
@@ -28,41 +30,47 @@ setUsernameButton.addEventListener('click', () => {
         alert('Please enter a valid username');
         return;
     }
-    showLoggedInElements();
-    websocket = new WebSocket(`ws://localhost:8080/ws-dice?username=${username}`);
+    websocket = new WebSocket(`${URL}${username}`);
     connectWebsocket();
-})
+});
 
 function connectWebsocket() {
-    websocket.onopen = (event) => {
-        console.log("WebSocket connection opened:", event);
-    };
+    websocket.addEventListener('open', () => {
+        showLoggedInElements()
+    })
 
     websocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         switch (data.type) {
             case 'JOIN':
                 message.textContent = `${data.username} has joined!`;
-                setTimeout(() => message.textContent = "", timeOutDelay)
+                clearMessageTimeout();
+                timeout = setTimeout(() => message.textContent = "", timeOutDelay)
                 break;
             case 'LEAVE':
                 message.textContent = `${data.username} has left!`;
-                setTimeout(() => message.textContent = "", timeOutDelay)
+                clearMessageTimeout();
+                timeout = setTimeout(() => {
+                    resetResults()
+                    rollDiceButton.disabled = false;
+                }, timeOutDelay)
                 break;
             case 'WAIT':
                 rollDiceButton.disabled = true;
                 message.textContent = "Waiting for other player to play...";
+                clearMessageTimeout();
                 break;
             case 'ROLL':
-                dice1Img.src =`images/${data.roll1}.png`;
-                dice2Img.src =`images/${data.roll2}.png`;
+                dice1Img.src = `images/${data.roll1}.png`;
+                dice2Img.src = `images/${data.roll2}.png`;
                 scoreYouSpan.textContent = data.roll1 + data.roll2
                 break;
             case 'RESULT':
                 rollDiceButton.disabled = true;
-                winner.textContent = data.username;
+                data.username ? winner.textContent = data.username : winner.textContent = "Tie!";
                 message.textContent = data.resultMessage;
-                setTimeout(() => {
+                clearMessageTimeout();
+                timeout = setTimeout(() => {
                     resetResults()
                     rollDiceButton.disabled = false;
                 }, timeOutDelay)
@@ -72,6 +80,7 @@ function connectWebsocket() {
                 break;
             case 'NOTENOUGHPLAYERS':
                 message.textContent = "Not enough players...";
+                clearMessageTimeout();
                 break;
             case 'LOBBYFULL':
                 alert("Lobby is full!")
@@ -87,11 +96,16 @@ function connectWebsocket() {
             resetResults()
         }
     });
+    websocket.addEventListener('error', () => {
+        alert("Connection error. Please try again later.");
+        showLoggedOffElements();
+        resetResults();
+    });
 
     rollDiceButton.addEventListener('click', () => {
         websocket.send(JSON.stringify({type: "ROLL"}));
 
-    })
+    });
 }
 
 function showLoggedInElements() {
@@ -112,10 +126,16 @@ function showLoggedOffElements() {
 }
 
 function resetResults() {
-    dice1Img.src =`images/0.png`;
-    dice2Img.src =`images/0.png`;
+    dice1Img.src = `images/0.png`;
+    dice2Img.src = `images/0.png`;
     winner.textContent = "";
     message.textContent = "";
     scoreOtherSpan.textContent = "";
     scoreYouSpan.textContent = "";
+}
+
+function clearMessageTimeout() {
+    if (timeout) {
+        clearTimeout(timeout);
+    }
 }
