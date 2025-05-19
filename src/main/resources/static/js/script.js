@@ -57,7 +57,7 @@ function connectWebsocket() {
                 break;
             case 'WAIT':
                 rollDiceButton.disabled = true;
-                message.textContent = "Waiting for other player to play...";
+                message.innerHTML = `Waiting for other player to play...  <div class='loader'></div>`
                 clearMessageTimeout();
                 break;
             case 'ROLL':
@@ -66,8 +66,8 @@ function connectWebsocket() {
                 scoreYouSpan.textContent = data.roll1 + data.roll2
                 break;
             case 'RESULT':
+                winner.innerHTML = `Winner: <span>${data.username ? data.username : "Tie!"} </span>`
                 rollDiceButton.disabled = true;
-                data.username ? winner.textContent = data.username : winner.textContent = "Tie!";
                 message.textContent = data.resultMessage;
                 clearMessageTimeout();
                 timeout = setTimeout(() => {
