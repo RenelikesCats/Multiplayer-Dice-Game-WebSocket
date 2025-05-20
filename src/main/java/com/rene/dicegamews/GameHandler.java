@@ -12,6 +12,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.rene.dicegamews.Type.*;
@@ -22,6 +24,7 @@ public class GameHandler extends TextWebSocketHandler {
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final Map<String, Integer> playerRolls = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Timer timer = new Timer();
 
 
     @Override
@@ -40,6 +43,7 @@ public class GameHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String username = getUsername(session);
         sessions.remove(username);
+        playerRolls.clear();
 
         if (sessions.size() < MAX_PLAYER) {
             sendMessageToAll(new WebSocketMessage(LEAVE, username));
@@ -65,16 +69,19 @@ public class GameHandler extends TextWebSocketHandler {
                     int rolledTotal = roll1 + roll2;
 
                     playerRolls.put(username, rolledTotal);
+                    sendMessage(session, new WebSocketMessage(ROLL));
 
-                    sendMessage(session, new WebSocketMessage(ROLL, roll1, roll2));
-                    sendMessageToSession(session, new WebSocketMessage(ROLLOTHERPLAYER, roll1, roll2));
-
-                    if (playerRolls.size() == 2) {
-                        determineWinnerAndSendResult();
-                        playerRolls.clear();
-                    } else {
-                        sendMessage(session, new WebSocketMessage(WAIT));
-                    }
+                    timer.schedule(new TimerTask() { // delay simulation (550ms)
+                        @Override
+                        public void run() {
+                            sendMessage(session, new WebSocketMessage(WAIT, roll1, roll2));
+                            sendMessageToSession(session, new WebSocketMessage(ROLLOTHERPLAYER, roll1, roll2));
+                            if (playerRolls.size() == 2) {
+                                determineWinnerAndSendResult();
+                                playerRolls.clear();
+                            }
+                        }
+                    }, 550);
                 }
             }
         } catch (IOException ex) {

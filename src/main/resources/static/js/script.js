@@ -7,10 +7,14 @@ const scoreYouSpan = document.getElementById('scoreYou');
 const scoreOtherSpan = document.getElementById('scoreOther');
 const dice1Img = document.getElementById('dice1Image');
 const dice2Img = document.getElementById('dice2Image');
+const diceLoadingAnimation = document.getElementsByClassName('loader-dice');
 const rollDiceButton = document.getElementById('roll-dice');
 const systemMsgDiv = document.getElementById("system-msg");
 const winner = document.getElementById('winner');
 const message = document.getElementById('message');
+
+const colorOk = '#28a745'
+const colorWarning = '#fc3939'
 
 const URL = "ws://localhost:8080/ws-dice?username=";
 const timeOutDelay = 4000;
@@ -43,33 +47,45 @@ function connectWebsocket() {
         const data = JSON.parse(event.data);
         switch (data.type) {
             case 'JOIN':
-                message.textContent = `${data.username} has joined!`;
                 clearMessageTimeout();
+                message.style.color = colorOk;
+                message.textContent = `${data.username} has joined!`;
                 timeout = setTimeout(() => message.textContent = "", timeOutDelay)
                 break;
             case 'LEAVE':
-                message.textContent = `${data.username} has left!`;
                 clearMessageTimeout();
+                message.style.color = colorWarning;
+                message.textContent = `${data.username} has left!`;
                 timeout = setTimeout(() => {
                     resetResults()
                     rollDiceButton.disabled = false;
                 }, timeOutDelay)
                 break;
             case 'WAIT':
-                rollDiceButton.disabled = true;
-                message.innerHTML = `Waiting for other player to play...  <div class='loader'></div>`
                 clearMessageTimeout();
-                break;
-            case 'ROLL':
+                rollDiceButton.disabled = true;
+                message.style.color = colorOk;
+                message.innerHTML = `Waiting for other player to play...  <div class='loader'></div>`
+                diceLoadingAnimation[0].hidden = true;
+                diceLoadingAnimation[1].hidden = true;
+                dice1Img.hidden = false;
+                dice2Img.hidden = false;
                 dice1Img.src = `images/${data.roll1}.png`;
                 dice2Img.src = `images/${data.roll2}.png`;
                 scoreYouSpan.textContent = data.roll1 + data.roll2
                 break;
+            case 'ROLL':
+                diceLoadingAnimation[0].hidden = false;
+                diceLoadingAnimation[1].hidden = false;
+                dice1Img.hidden = true;
+                dice2Img.hidden = true;
+                break;
             case 'RESULT':
+                clearMessageTimeout();
                 winner.innerHTML = `Winner: <span>${data.username ? data.username : "Tie!"} </span>`
                 rollDiceButton.disabled = true;
+                message.style.color = colorOk;
                 message.textContent = data.resultMessage;
-                clearMessageTimeout();
                 timeout = setTimeout(() => {
                     resetResults()
                     rollDiceButton.disabled = false;
@@ -79,8 +95,9 @@ function connectWebsocket() {
                 scoreOtherSpan.textContent = data.roll1 + data.roll2;
                 break;
             case 'NOTENOUGHPLAYERS':
-                message.textContent = "Not enough players...";
                 clearMessageTimeout();
+                message.style.color = colorWarning;
+                message.textContent = "Not enough players...";
                 break;
             case 'LOBBYFULL':
                 alert("Lobby is full!")
@@ -105,6 +122,7 @@ function connectWebsocket() {
     rollDiceButton.addEventListener('click', () => {
         websocket.send(JSON.stringify({type: "ROLL"}));
 
+
     });
 }
 
@@ -114,7 +132,6 @@ function showLoggedInElements() {
     rollDiceButton.hidden = false;
     systemMsgDiv.hidden = false;
     usernameAreaDiv.hidden = true;
-
 }
 
 function showLoggedOffElements() {
@@ -126,10 +143,13 @@ function showLoggedOffElements() {
 }
 
 function resetResults() {
+    diceLoadingAnimation[0].hidden = true;
+    diceLoadingAnimation[1].hidden = true;
     dice1Img.src = `images/0.png`;
     dice2Img.src = `images/0.png`;
     winner.textContent = "";
     message.textContent = "";
+    message.style.color = '';
     scoreOtherSpan.textContent = "";
     scoreYouSpan.textContent = "";
 }
