@@ -40,7 +40,7 @@ public class GameHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String username = getUsername(session);
         sessions.remove(username);
         playerRolls.clear();
@@ -51,7 +51,7 @@ public class GameHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
             JsonNode jsonNode = objectMapper.readTree(message.getPayload());
             Type type = valueOf(jsonNode.get("type").asText());
@@ -149,7 +149,7 @@ public class GameHandler extends TextWebSocketHandler {
             try {
                 session.sendMessage(new TextMessage(jsonMessage));
             } catch (IOException e) {
-
+                System.out.println(e.getMessage());
             }
         }
     }
