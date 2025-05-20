@@ -65,7 +65,6 @@ function connectWebsocket() {
                 break;
             case 'WAIT':
                 clearMessageTimeout();
-                rollDiceButton.disabled = true;
                 message.style.color = colorOk;
                 message.innerHTML = `Waiting for other player to play...  <span class='loader'></span>`
                 diceLoadingAnimation[0].hidden = true;
@@ -77,6 +76,7 @@ function connectWebsocket() {
                 scoreYouSpan.textContent = data.roll1 + data.roll2
                 break;
             case 'ROLL':
+                rollDiceButton.disabled = true;
                 diceLoadingAnimation[0].hidden = false;
                 diceLoadingAnimation[1].hidden = false;
                 dice1Img.hidden = true;
