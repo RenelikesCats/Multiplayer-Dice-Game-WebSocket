@@ -54,12 +54,10 @@ function connectWebsocket() {
                 break;
             case 'LEAVE':
                 clearMessageTimeout();
+                resetResults()
                 message.style.color = colorWarning;
                 message.textContent = `${data.username} has left!`;
-                timeout = setTimeout(() => {
-                    resetResults()
-                    rollDiceButton.disabled = false;
-                }, timeOutDelay)
+                rollDiceButton.disabled = false;
                 break;
             case 'WAIT':
                 clearMessageTimeout();
@@ -92,7 +90,11 @@ function connectWebsocket() {
                 }, timeOutDelay)
                 break;
             case 'ROLLOTHERPLAYER':
-                scoreOtherSpan.textContent = data.roll1 + data.roll2;
+                clearMessageTimeout();
+                const totalRolledOpponent = data.roll1 + data.roll2
+                message.style.color = colorOk;
+                message.textContent = `Your turn! opponent rolled ${totalRolledOpponent}`
+                scoreOtherSpan.textContent = totalRolledOpponent;
                 break;
             case 'NOTENOUGHPLAYERS':
                 clearMessageTimeout();
