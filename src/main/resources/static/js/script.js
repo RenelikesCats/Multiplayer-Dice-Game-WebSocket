@@ -1,6 +1,7 @@
 const usernameAreaDiv = document.getElementById('usernameAreaDiv');
 const usernameInput = document.getElementById('username');
 const setUsernameButton = document.getElementById('setUsername');
+const disconnectButton = document.getElementById('disconnect');
 const scoreArea = document.getElementById('score-area');
 const gameArea = document.getElementById('game-area');
 const scoreYouSpan = document.getElementById('scoreYou');
@@ -40,7 +41,10 @@ setUsernameButton.addEventListener('click', () => {
 
 function connectWebsocket() {
     websocket.addEventListener('open', () => {
-        showLoggedInElements()
+        showLoggedInElements();
+    })
+    disconnectButton.addEventListener('click', () => {
+        window.location.reload();
     })
 
     websocket.onmessage = (event) => {
@@ -63,7 +67,7 @@ function connectWebsocket() {
                 clearMessageTimeout();
                 rollDiceButton.disabled = true;
                 message.style.color = colorOk;
-                message.innerHTML = `Waiting for other player to play...  <div class='loader'></div>`
+                message.innerHTML = `Waiting for other player to play...  <span class='loader'></span>`
                 diceLoadingAnimation[0].hidden = true;
                 diceLoadingAnimation[1].hidden = true;
                 dice1Img.hidden = false;
@@ -92,6 +96,13 @@ function connectWebsocket() {
             case 'ROLLOTHERPLAYER':
                 clearMessageTimeout();
                 const totalRolledOpponent = data.roll1 + data.roll2
+                if (totalRolledOpponent === 0) {
+                    message.style.color = colorWarning;
+                    message.textContent = "Opponent is rolling..."
+                    rollDiceButton.disabled = true;
+                    return;
+                }
+                rollDiceButton.disabled = false;
                 message.style.color = colorOk;
                 message.textContent = `Your turn! opponent rolled ${totalRolledOpponent}`
                 scoreOtherSpan.textContent = totalRolledOpponent;
@@ -123,8 +134,6 @@ function connectWebsocket() {
 
     rollDiceButton.addEventListener('click', () => {
         websocket.send(JSON.stringify({type: "ROLL"}));
-
-
     });
 }
 

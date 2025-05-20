@@ -137,7 +137,7 @@ body {
 #system-msg {
     width: 700px;
     padding: 30px;
-    height: 120px;
+    height: 150px;
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -156,6 +156,22 @@ body {
 #system-msg p {
     font-weight: bold;
     font-size: 1.1em;
+}
+
+#disconnect{
+    display:block;
+    position: absolute;
+    background-color: rgba(255, 0, 0, 0.481);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#disconnect:hover{
+    background-color: #ff0000;
 }
 
 #game-area,

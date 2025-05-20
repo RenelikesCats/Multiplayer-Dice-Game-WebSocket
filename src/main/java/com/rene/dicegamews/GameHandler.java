@@ -26,6 +26,8 @@ public class GameHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Timer timer = new Timer();
 
+    private final int[] delayInMs = {600, 800, 1000, 1200, 1500, 1800, 2000, 2500};
+
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -70,18 +72,23 @@ public class GameHandler extends TextWebSocketHandler {
 
                     playerRolls.put(username, rolledTotal);
                     sendMessage(session, new WebSocketMessage(ROLL));
+                    sendMessageToSession(session, new WebSocketMessage(ROLLOTHERPLAYER));
 
-                    timer.schedule(new TimerTask() { // delay simulation (550ms)
+                    int randomDelay = delayInMs[random.nextInt(delayInMs.length)];
+
+                    timer.schedule(new TimerTask() { // delay simulation
                         @Override
                         public void run() {
-                            sendMessage(session, new WebSocketMessage(WAIT, roll1, roll2));
-                            sendMessageToSession(session, new WebSocketMessage(ROLLOTHERPLAYER, roll1, roll2));
+                            if (sessions.size() == 2) {
+                                sendMessage(session, new WebSocketMessage(WAIT, roll1, roll2));
+                                sendMessageToSession(session, new WebSocketMessage(ROLLOTHERPLAYER, roll1, roll2));
+                            }
                             if (playerRolls.size() == 2) {
                                 determineWinnerAndSendResult();
                                 playerRolls.clear();
                             }
                         }
-                    }, 550);
+                    }, randomDelay);
                 }
             }
         } catch (IOException ex) {

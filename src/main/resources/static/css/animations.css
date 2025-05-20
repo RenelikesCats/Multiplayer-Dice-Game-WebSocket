@@ -1,7 +1,7 @@
 .loader {
     margin-left: 10px;
-    width: 48px;
-    height: 48px;
+    width: 25px;
+    height: 25px;
     display: inline-block;
     position: relative;
     border: 3px solid;
@@ -11,20 +11,6 @@
     animation: 1s rotate linear infinite;
 }
 
-.loader:before, .loader:after {
-    content: '';
-    top: 0;
-    left: 0;
-    position: absolute;
-    border: 10px solid transparent;
-    border-bottom-color: #fff;
-    transform: translate(-10px, 19px) rotate(-35deg);
-}
-
-.loader:after {
-    border-color: #de3500 #0000 #0000 #0000;
-    transform: translate(32px, 3px) rotate(-35deg);
-}
 .loader-dice {
     width: 48px;
     height: 48px;
